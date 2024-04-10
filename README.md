@@ -18,7 +18,7 @@ solver = PGPE(
     )
 ```
 
-A rough code skeleton would look like this:
+## Example usage to replace an evaluation magic numbers
 
 ```python
 class Agent:
@@ -88,3 +88,57 @@ class Driver:
             # log progress vs previous best, make a pretty graph, etc
             # save weights of best agents to disk
 ```
+
+## Decide which action to take
+
+A bit more complex, one hidden layer.
+
+```python
+class Agent:
+    def __init__(self, number_of_parameters):
+        self.hidden_layer_size = 16  # 16 neurons in the hidden layer
+        self.hidden_layer_weights = None
+        self.hidden_layer_bias = None
+        self.output_size = 5  # for 5 different actions
+        self.output_weights = None
+        self.output_bias = None
+
+        self.input_size = 15  # based on what you get from the state
+
+    def load_weights(self, weights):
+        # this is copilot generated, no guarantees that shapes are correct
+        self.hidden_layer_weights = np.array(
+            weights[:self.hidden_layer_size * self.input_size]
+        ).reshape(self.hidden_layer_size, self.input_size)  # read something flat then reshape it
+
+        self.hidden_layer_bias = weights[self.hidden_layer_size * self.input_size : self.hidden_layer_size * self.input_size + self.hidden_layer_size]
+
+        self.output_weights = np.array(
+            weights[self.hidden_layer_size * self.input_size + self.hidden_layer_size : self.hidden_layer_size * self.input_size + self.hidden_layer_size + self.hidden_layer_size * self.output_size]
+        ).reshape(self.output_size, self.hidden_layer_size)
+
+
+    def evaluate_state(self, state):
+        vector_of_meaningful_values = self.get_inputs_from(state)
+        
+        hidden_layer_output = np.dot(self.hidden_layer_weights, vector_of_meaningful_values) + self.hidden_layer_bias
+        hidden_layer_output = np.maximum(hidden_layer_output, 0)  # relu
+
+        output = np.dot(self.output_weights, hidden_layer_output) + self.output_bias
+
+        return np.argmax(output)
+
+    def your_search_algo_goes_here(self, state):
+        best_action_index = self.evaluate_state(state)
+        order = self.generate_order_from_action_index(best_action_index)  # like: go up, play this card, play on this tile, etc
+        return order
+```
+
+
+## Scale
+
+* python will run one 1 core, use `multiprocessing` to run on multiple cores or `ray` library
+* `numpy` is fast, but not the fastest, use `numba` or `pytorch` for faster computations
+* replace the part playing the game by a subprocess running a C++ version of the game
+
+Have fun!
