@@ -59,6 +59,7 @@ class Driver:
             stdev_init=0.05,  # how much noise to start with
             dtype=np.float32,
         )
+        self.engine = Engine()
 
     def run(self):
 
@@ -116,6 +117,8 @@ class Agent:
         self.output_weights = np.array(
             weights[self.hidden_layer_size * self.input_size + self.hidden_layer_size : self.hidden_layer_size * self.input_size + self.hidden_layer_size + self.hidden_layer_size * self.output_size]
         ).reshape(self.output_size, self.hidden_layer_size)
+
+        self.output_bias = weights[self.hidden_layer_size * self.input_size + self.hidden_layer_size + self.hidden_layer_size * self.output_size:]
 
 
     def evaluate_state(self, state):
