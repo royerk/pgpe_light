@@ -92,7 +92,24 @@ class Driver:
 
 ## Decide which action to take
 
-A bit more complex, one hidden layer.
+A bit more complex, a small neural network to predict which order to give. The trick is to have the weights in the right shape from :
+
+```
+weights = [w0, w1, w2, w3, ..., wn]  # one solution provided by the solver
+```
+
+to (here with a layer size of 3 and 4 inputs):
+```
+# read the first 3x4=12 weights to form the hidden layer weights
+hidden_layer = [
+    [w0, w1, w3, w4],
+    [w5, w6, w7, w8],
+    [w9, w10, w11, w12],
+]
+# read the next 3 weights to form the hidden layer bias
+hidden_layer_bias = [w10, w11, w12]
+```
+then do the same for the output layer.
 
 ```python
 class Agent:
